@@ -32,4 +32,5 @@ public:
     int get_correct_count();
     int get_user_answer(int index);
     Task get_task(int index);
+    int get_count();
 };

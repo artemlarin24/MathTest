@@ -1,6 +1,8 @@
 #include "MathTest.h"
 #include <cstdlib>
 #include <iostream>
+#include <iomanip>
+using namespace std;
 Task::Task() {
     num_1 = rand() % 10 + 1;
     num_2 = rand() % 10 + 1;
@@ -119,4 +121,123 @@ void MathTest::run()
 
         set_answer(i, user_answer);
     }
+}
+
+void MathTest::show_statistics()
+{
+    cout << endl;
+
+    cout << "|          No |";
+
+    for (int i = 0; i < count; i++)
+    {
+        cout << setw(8) << i + 1 << " |";
+    }
+
+    cout << endl;
+
+
+    cout << "|    Question |";
+
+    for (int i = 0; i < count; i++)
+    {
+        cout << setw(3) << tasks[i].num_1
+            << " "
+            << tasks[i].operation
+            << " "
+            << setw(2) << tasks[i].num_2
+            << " |";
+    }
+
+    cout << endl;
+
+
+    cout << "| True Answer |";
+
+    for (int i = 0; i < count; i++)
+    {
+        cout << setw(8) << tasks[i].answer << " |";
+    }
+
+    cout << endl;
+
+
+    cout << "| Your Answer |";
+
+    for (int i = 0; i < count; i++)
+    {
+        cout << setw(8) << user_answers[i] << " |";
+    }
+
+    cout << endl;
+
+
+    cout << "|      Result |";
+
+    for (int i = 0; i < count; i++)
+    {
+        if (user_answers[i] == tasks[i].answer)
+        {
+            cout << setw(8) << "+" << " |";
+        }
+        else
+        {
+            cout << setw(8) << "-" << " |";
+        }
+    }
+
+    cout << endl << endl;
+
+
+    int percent = correct_count * 100 / count;
+
+    char mark;
+
+    if (percent >= 80)
+    {
+        mark = 'A';
+    }
+    else if (percent >= 60)
+    {
+        mark = 'B';
+    }
+    else if (percent >= 40)
+    {
+        mark = 'C';
+    }
+    else if (percent >= 20)
+    {
+        mark = 'D';
+    }
+    else
+    {
+        mark = 'F';
+    }
+
+    cout << "Total Result: "
+        << correct_count << " / "
+        << count << " (mark: "
+        << mark << ")" << endl;
+}
+
+int MathTest::get_correct_count()
+{
+    return correct_count;
+}
+
+
+int MathTest::get_user_answer(int index)
+{
+    return user_answers[index];
+}
+
+
+Task MathTest::get_task(int index)
+{
+    return tasks[index];
+}
+
+int MathTest::get_count()
+{
+    return count;
 }
