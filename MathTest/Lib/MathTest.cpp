@@ -1,6 +1,6 @@
 #include "MathTest.h"
 #include <cstdlib>
-
+#include <iostream>
 Task::Task() {
     num_1 = rand() % 10 + 1;
     num_2 = rand() % 10 + 1;
@@ -89,4 +89,34 @@ MathTest::~MathTest()
 {
     delete[] tasks;
     delete[] user_answers;
+}
+
+void MathTest::set_answer(int index, int user_answer)
+{
+    user_answers[index] = user_answer;
+
+    if (user_answer == tasks[index].answer)
+    {
+        correct_count++;
+    }
+}
+
+
+void MathTest::run()
+{
+    correct_count = 0;
+
+    for (int i = 0; i < count; i++)
+    {
+        int user_answer;
+
+        std::cout << "Question " << i + 1 << ": ";
+        std::cout << tasks[i].num_1 << " "
+            << tasks[i].operation << " "
+            << tasks[i].num_2 << " = ";
+
+        std::cin >> user_answer;
+
+        set_answer(i, user_answer);
+    }
 }
