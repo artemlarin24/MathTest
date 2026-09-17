@@ -30,4 +30,63 @@ Task::Task(int min, int max, char op) {
     if (operation == '*') {
         answer = num_1 * num_2;
     }
+    if (operation == '/') {
+        answer = num_1 / num_2;
+    }
+}
+
+MathTest::MathTest(int count)
+{
+    this->count = count;
+
+    tasks = new Task[count];
+    user_answers = new int[count];
+
+    correct_count = 0;
+
+    for (int i = 0; i < count; i++)
+    {
+        user_answers[i] = 0;
+    }
+}
+
+
+MathTest::MathTest(int count, int min, int max)
+{
+    this->count = count;
+
+    tasks = new Task[count];
+    user_answers = new int[count];
+
+    correct_count = 0;
+
+    for (int i = 0; i < count; i++)
+    {
+        tasks[i] = Task(min, max);
+        user_answers[i] = 0;
+    }
+}
+
+
+MathTest::MathTest(int count, int min, int max, char operation)
+{
+    this->count = count;
+
+    tasks = new Task[count];
+    user_answers = new int[count];
+
+    correct_count = 0;
+
+    for (int i = 0; i < count; i++)
+    {
+        tasks[i] = Task(min, max, operation);
+        user_answers[i] = 0;
+    }
+}
+
+
+MathTest::~MathTest()
+{
+    delete[] tasks;
+    delete[] user_answers;
 }

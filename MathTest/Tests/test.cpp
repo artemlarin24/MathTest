@@ -1,10 +1,5 @@
 #include "pch.h"
 #include "MathTest.h"
-<<<<<<< HEAD
-TEST(TestCaseName, TestName) {
-  EXPECT_EQ(1, 1);
-  EXPECT_TRUE(true);
-=======
 
 TEST(TaskTest, DefaultConstructor) {
     Task task;
