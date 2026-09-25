@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "MathTest.h"
+#include <stdexcept>
 
 TEST(TaskTest, DefaultConstructor) {
     Task task;
@@ -30,7 +31,6 @@ TEST(TaskTest, Multiply) {
     EXPECT_EQ(task.operation, '*');
     EXPECT_EQ(task.answer, task.num_1 * task.num_2);
 }
-
 
 TEST(MathTestTest, Count){
     MathTest test(5);
@@ -95,3 +95,48 @@ TEST(MathTestTest, WrongAnswer){
 }
 
 
+TEST(TaskTest, InvalidRange) {
+    EXPECT_THROW(Task(10, 5), std::invalid_argument);
+}
+
+TEST(TaskTest, InvalidOperation) {
+    EXPECT_THROW(Task(1, 10, '%'), std::invalid_argument);
+}
+
+TEST(TaskTest, DivisionByZero) {
+    EXPECT_THROW(Task(0, 0, '/'), std::invalid_argument);
+}
+
+TEST(MathTestTest, InvalidCount) {
+    EXPECT_THROW(MathTest(0), std::invalid_argument);
+    EXPECT_THROW(MathTest(-1), std::invalid_argument);
+}
+
+TEST(MathTestTest, InvalidRange) {
+    EXPECT_THROW(MathTest(5, 10, 1), std::invalid_argument);
+}
+
+TEST(MathTestTest, InvalidOperation) {
+    EXPECT_THROW(MathTest(5, 1, 10, '%'), std::invalid_argument);
+}
+
+TEST(MathTestTest, InvalidIndexInSetAnswer) {
+    MathTest test(5);
+
+    EXPECT_THROW(test.set_answer(-1, 10), std::out_of_range);
+    EXPECT_THROW(test.set_answer(5, 10), std::out_of_range);
+}
+
+TEST(MathTestTest, InvalidIndexInGetUserAnswer) {
+    MathTest test(5);
+
+    EXPECT_THROW(test.get_user_answer(-1), std::out_of_range);
+    EXPECT_THROW(test.get_user_answer(5), std::out_of_range);
+}
+
+TEST(MathTestTest, InvalidIndexInGetTask) {
+    MathTest test(5);
+
+    EXPECT_THROW(test.get_task(-1), std::out_of_range);
+    EXPECT_THROW(test.get_task(5), std::out_of_range);
+}
