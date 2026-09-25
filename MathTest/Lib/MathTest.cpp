@@ -1,8 +1,11 @@
-#include "MathTest.h"
+﻿#include "MathTest.h"
 #include <cstdlib>
 #include <iostream>
 #include <iomanip>
+#include <stdexcept>
+
 using namespace std;
+
 Task::Task() {
     num_1 = rand() % 10 + 1;
     num_2 = rand() % 10 + 1;
@@ -11,6 +14,19 @@ Task::Task() {
 }
 
 Task::Task(int min, int max, char op) {
+    if (min > max) {
+        throw invalid_argument("Минимум больше максимума");
+    }
+
+    if (op != '\0' && op != '+' && op != '-' &&
+        op != '*' && op != '/') {
+        throw invalid_argument("Недопустимая операция");
+    }
+
+    if (op == '/' && min == 0 && max == 0) {
+        throw invalid_argument("Деление на ноль");
+    }
+
     num_1 = rand() % (max - min + 1) + min;
     num_2 = rand() % (max - min + 1) + min;
 
@@ -32,13 +48,21 @@ Task::Task(int min, int max, char op) {
     if (operation == '*') {
         answer = num_1 * num_2;
     }
+
     if (operation == '/') {
+        while (num_2 == 0) {
+            num_2 = rand() % (max - min + 1) + min;
+        }
         answer = num_1 / num_2;
     }
 }
 
 MathTest::MathTest(int count)
 {
+    if (count <= 0) {
+        throw invalid_argument("Количество вопросов должно быть больше нуля");
+    }
+
     this->count = count;
 
     tasks = new Task[count];
@@ -52,9 +76,16 @@ MathTest::MathTest(int count)
     }
 }
 
-
 MathTest::MathTest(int count, int min, int max)
 {
+    if (count <= 0) {
+        throw invalid_argument("Количество вопросов должно быть больше нуля");
+    }
+
+    if (min > max) {
+        throw invalid_argument("Минимум больше максимума");
+    }
+
     this->count = count;
 
     tasks = new Task[count];
@@ -69,9 +100,26 @@ MathTest::MathTest(int count, int min, int max)
     }
 }
 
-
 MathTest::MathTest(int count, int min, int max, char operation)
 {
+    if (count <= 0) {
+        throw invalid_argument("Количество вопросов должно быть больше нуля");
+    }
+
+    if (min > max) {
+        throw invalid_argument("Минимум больше максимума");
+    }
+
+    if (operation != '\0' && operation != '+' &&
+        operation != '-' && operation != '*' &&
+        operation != '/') {
+        throw invalid_argument("Недопустимая операция");
+    }
+
+    if (operation == '/' && min == 0 && max == 0) {
+        throw invalid_argument("Деление на ноль");
+    }
+
     this->count = count;
 
     tasks = new Task[count];
@@ -86,7 +134,6 @@ MathTest::MathTest(int count, int min, int max, char operation)
     }
 }
 
-
 MathTest::~MathTest()
 {
     delete[] tasks;
@@ -95,6 +142,10 @@ MathTest::~MathTest()
 
 void MathTest::set_answer(int index, int user_answer)
 {
+    if (index < 0 || index >= count) {
+        throw out_of_range("Неверный номер вопроса");
+    }
+
     user_answers[index] = user_answer;
 
     if (user_answer == tasks[index].answer)
@@ -102,7 +153,6 @@ void MathTest::set_answer(int index, int user_answer)
         correct_count++;
     }
 }
-
 
 void MathTest::run()
 {
@@ -112,12 +162,14 @@ void MathTest::run()
     {
         int user_answer;
 
-        std::cout << "Question " << i + 1 << ": ";
-        std::cout << tasks[i].num_1 << " "
+        cout << "Вопрос " << i + 1 << ": ";
+        cout << tasks[i].num_1 << " "
             << tasks[i].operation << " "
             << tasks[i].num_2 << " = ";
 
-        std::cin >> user_answer;
+        if (!(cin >> user_answer)) {
+            throw runtime_error("Ответ должен быть целым числом");
+        }
 
         set_answer(i, user_answer);
     }
@@ -136,7 +188,6 @@ void MathTest::show_statistics()
 
     cout << endl;
 
-
     cout << "|    Question |";
 
     for (int i = 0; i < count; i++)
@@ -151,7 +202,6 @@ void MathTest::show_statistics()
 
     cout << endl;
 
-
     cout << "| True Answer |";
 
     for (int i = 0; i < count; i++)
@@ -161,7 +211,6 @@ void MathTest::show_statistics()
 
     cout << endl;
 
-
     cout << "| Your Answer |";
 
     for (int i = 0; i < count; i++)
@@ -170,7 +219,6 @@ void MathTest::show_statistics()
     }
 
     cout << endl;
-
 
     cout << "|      Result |";
 
@@ -187,7 +235,6 @@ void MathTest::show_statistics()
     }
 
     cout << endl << endl;
-
 
     int percent = correct_count * 100 / count;
 
@@ -214,9 +261,9 @@ void MathTest::show_statistics()
         mark = 'F';
     }
 
-    cout << "Total Result: "
+    cout << "Итог: "
         << correct_count << " / "
-        << count << " (mark: "
+        << count << " (оценка: "
         << mark << ")" << endl;
 }
 
@@ -225,15 +272,21 @@ int MathTest::get_correct_count()
     return correct_count;
 }
 
-
 int MathTest::get_user_answer(int index)
 {
+    if (index < 0 || index >= count) {
+        throw out_of_range("Неверный номер вопроса");
+    }
+
     return user_answers[index];
 }
 
-
 Task MathTest::get_task(int index)
 {
+    if (index < 0 || index >= count) {
+        throw out_of_range("Неверный номер вопроса");
+    }
+
     return tasks[index];
 }
 
