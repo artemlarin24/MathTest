@@ -1,36 +1,38 @@
 #pragma once
 
-struct Task
-{
+#include <vector>
+
+struct Task {
     int num_1;
     int num_2;
     char operation;
     int answer;
 
     Task();
-    Task(int min, int max, char operation ='\0');
+    Task(int min, int max, char operation = '\0');
 };
 
 class MathTest {
 private:
-    Task* tasks;
-    int count;
-    int* user_answers;
-    int correct_count;
+    std::vector<Task> tasks;
+    std::vector<int> user_answers;
+    std::vector<bool> answered;
+    int count = 0;
+    int correct_count = 0;
+
+    void init(int count);
 
 public:
     MathTest(int count);
     MathTest(int count, int min, int max);
     MathTest(int count, int min, int max, char operation);
 
-    ~MathTest();
-
     void run();
     void set_answer(int index, int user_answer);
-    void show_statistics();
+    void show_statistics() const;
 
-    int get_correct_count();
-    int get_user_answer(int index);
-    Task get_task(int index);
-    int get_count();
+    int get_correct_count() const;
+    int get_user_answer(int index) const;
+    const Task& get_task(int index) const;
+    int get_count() const;
 };

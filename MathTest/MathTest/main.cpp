@@ -1,10 +1,14 @@
-﻿#include <iostream>
+﻿#include <cstdlib>
+#include <ctime>
 #include <exception>
+#include <iostream>
 #include "MathTest.h"
 
 int main() {
+    std::srand(static_cast<unsigned>(std::time(nullptr)));
+
     try {
-        MathTest test(5, 1, 10, '+');
+        MathTest test(5, 1, 10);
 
         std::cout << "Ответьте на 5 вопросов:" << std::endl;
         test.run();

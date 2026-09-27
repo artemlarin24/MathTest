@@ -1,16 +1,13 @@
 ﻿#include "MathTest.h"
+
 #include <cstdlib>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #include <stdexcept>
 
 using namespace std;
 
-Task::Task() {
-    num_1 = rand() % 10 + 1;
-    num_2 = rand() % 10 + 1;
-    operation = '+';
-    answer = num_1 + num_2;
+Task::Task() : Task(1, 10) {
 }
 
 Task::Task(int min, int max, char op) {
@@ -23,96 +20,70 @@ Task::Task(int min, int max, char op) {
         throw invalid_argument("Недопустимая операция");
     }
 
-    if (op == '/' && min == 0 && max == 0) {
+    const char operations[] = { '+', '-', '*', '/' };
+    operation = (op == '\0') ? operations[rand() % 4] : op;
+
+    if (operation == '/' && min == 0 && max == 0) {
         throw invalid_argument("Деление на ноль");
     }
 
     num_1 = rand() % (max - min + 1) + min;
     num_2 = rand() % (max - min + 1) + min;
 
-    if (op == '\0') {
-        operation = '+';
-    }
-    else {
-        operation = op;
-    }
-
-    if (operation == '+') {
+    switch (operation) {
+    case '+':
         answer = num_1 + num_2;
-    }
-
-    if (operation == '-') {
+        break;
+    case '-':
         answer = num_1 - num_2;
-    }
-
-    if (operation == '*') {
+        break;
+    case '*':
         answer = num_1 * num_2;
-    }
-
-    if (operation == '/') {
-        while (num_2 == 0) {
-            num_2 = rand() % (max - min + 1) + min;
+        break;
+    case '/':
+        if (num_2 == 0) {
+            num_2 = (min < 0) ? -1 : 1;
         }
         answer = num_1 / num_2;
+        break;
     }
 }
 
-MathTest::MathTest(int count)
-{
+void MathTest::init(int count) {
     if (count <= 0) {
         throw invalid_argument("Количество вопросов должно быть больше нуля");
     }
 
     this->count = count;
-
-    tasks = new Task[count];
-    user_answers = new int[count];
-
     correct_count = 0;
-
-    for (int i = 0; i < count; i++)
-    {
-        user_answers[i] = 0;
-    }
+    tasks.resize(count);
+    user_answers.assign(count, 0);
+    answered.assign(count, false);
 }
 
-MathTest::MathTest(int count, int min, int max)
-{
-    if (count <= 0) {
-        throw invalid_argument("Количество вопросов должно быть больше нуля");
-    }
+MathTest::MathTest(int count) {
+    init(count);
+}
 
+MathTest::MathTest(int count, int min, int max) {
     if (min > max) {
         throw invalid_argument("Минимум больше максимума");
     }
 
-    this->count = count;
+    init(count);
 
-    tasks = new Task[count];
-    user_answers = new int[count];
-
-    correct_count = 0;
-
-    for (int i = 0; i < count; i++)
-    {
+    for (int i = 0; i < count; ++i) {
         tasks[i] = Task(min, max);
-        user_answers[i] = 0;
     }
 }
 
-MathTest::MathTest(int count, int min, int max, char operation)
-{
-    if (count <= 0) {
-        throw invalid_argument("Количество вопросов должно быть больше нуля");
-    }
-
+MathTest::MathTest(int count, int min, int max, char operation) {
     if (min > max) {
         throw invalid_argument("Минимум больше максимума");
     }
 
     if (operation != '\0' && operation != '+' &&
-        operation != '-' && operation != '*' &&
-        operation != '/') {
+        operation != '-' && operation != '*' && operation != '/') {
         throw invalid_argument("Недопустимая операция");
     }
 
@@ -120,50 +91,43 @@ MathTest::MathTest(int count, int min, int max, char operation)
         throw invalid_argument("Деление на ноль");
     }
 
-    this->count = count;
+    init(count);
 
-    tasks = new Task[count];
-    user_answers = new int[count];
-
-    correct_count = 0;
-
-    for (int i = 0; i < count; i++)
-    {
+    for (int i = 0; i < count; ++i) {
         tasks[i] = Task(min, max, operation);
-        user_answers[i] = 0;
     }
 }
 
-MathTest::~MathTest()
-{
-    delete[] tasks;
-    delete[] user_answers;
-}
-
-void MathTest::set_answer(int index, int user_answer)
-{
+void MathTest::set_answer(int index, int user_answer) {
     if (index < 0 || index >= count) {
         throw out_of_range("Неверный номер вопроса");
     }
 
-    user_answers[index] = user_answer;
+    if (answered[index] && user_answers[index] == tasks[index].answer) {
+        --correct_count;
+    }
 
-    if (user_answer == tasks[index].answer)
-    {
-        correct_count++;
+    user_answers[index] = user_answer;
+    answered[index] = true;
+
+    if (user_answer == tasks[index].answer) {
+        ++correct_count;
     }
 }
 
-void MathTest::run()
-{
+void MathTest::run() {
     correct_count = 0;
 
-    for (int i = 0; i < count; i++)
-    {
+    for (int i = 0; i < count; ++i) {
+        user_answers[i] = 0;
+        answered[i] = false;
+    }
+
+    for (int i = 0; i < count; ++i) {
         int user_answer;
 
-        cout << "Вопрос " << i + 1 << ": ";
-        cout << tasks[i].num_1 << " "
+        cout << "Вопрос " << i + 1 << ": "
+            << tasks[i].num_1 << " "
             << tasks[i].operation << " "
             << tasks[i].num_2 << " = ";
 
@@ -175,105 +139,78 @@ void MathTest::run()
     }
 }
 
-void MathTest::show_statistics()
-{
-    cout << endl;
+void MathTest::show_statistics() const {
+    cout << endl << "|          No |";
 
-    cout << "|          No |";
-
-    for (int i = 0; i < count; i++)
-    {
+    for (int i = 0; i < count; ++i) {
         cout << setw(8) << i + 1 << " |";
     }
 
-    cout << endl;
+    cout << endl << "|    Question |";
 
-    cout << "|    Question |";
-
-    for (int i = 0; i < count; i++)
-    {
+    for (int i = 0; i < count; ++i) {
         cout << setw(3) << tasks[i].num_1
-            << " "
-            << tasks[i].operation
-            << " "
-            << setw(2) << tasks[i].num_2
+            << " " << tasks[i].operation
+            << " " << setw(2) << tasks[i].num_2
             << " |";
     }
 
-    cout << endl;
+    cout << endl << "| True Answer |";
 
-    cout << "| True Answer |";
-
-    for (int i = 0; i < count; i++)
-    {
+    for (int i = 0; i < count; ++i) {
         cout << setw(8) << tasks[i].answer << " |";
     }
 
-    cout << endl;
+    cout << endl << "| Your Answer |";
 
-    cout << "| Your Answer |";
-
-    for (int i = 0; i < count; i++)
-    {
-        cout << setw(8) << user_answers[i] << " |";
-    }
-
-    cout << endl;
-
-    cout << "|      Result |";
-
-    for (int i = 0; i < count; i++)
-    {
-        if (user_answers[i] == tasks[i].answer)
-        {
-            cout << setw(8) << "+" << " |";
+    for (int i = 0; i < count; ++i) {
+        if (answered[i]) {
+            cout << setw(8) << user_answers[i] << " |";
         }
-        else
-        {
+        else {
             cout << setw(8) << "-" << " |";
         }
     }
 
+    cout << endl << "|      Result |";
+
+    for (int i = 0; i < count; ++i) {
+        const bool correct =
+            answered[i] && user_answers[i] == tasks[i].answer;
+
+        cout << setw(8) << (correct ? "+" : "-") << " |";
+    }
+
     cout << endl << endl;
 
-    int percent = correct_count * 100 / count;
-
+    const int percent = correct_count * 100 / count;
     char mark;
 
-    if (percent >= 80)
-    {
+    if (percent >= 80) {
         mark = 'A';
     }
-    else if (percent >= 60)
-    {
+    else if (percent >= 60) {
         mark = 'B';
     }
-    else if (percent >= 40)
-    {
+    else if (percent >= 40) {
         mark = 'C';
     }
-    else if (percent >= 20)
-    {
+    else if (percent >= 20) {
         mark = 'D';
     }
-    else
-    {
+    else {
         mark = 'F';
     }
 
-    cout << "Итог: "
-        << correct_count << " / "
-        << count << " (оценка: "
-        << mark << ")" << endl;
+    cout << "Итог: " << correct_count << " / " << count
+        << " (оценка: " << mark << ")" << endl;
 }
 
-int MathTest::get_correct_count()
-{
+int MathTest::get_correct_count() const {
     return correct_count;
 }
 
-int MathTest::get_user_answer(int index)
-{
+int MathTest::get_user_answer(int index) const {
     if (index < 0 || index >= count) {
         throw out_of_range("Неверный номер вопроса");
     }
@@ -281,8 +218,7 @@ int MathTest::get_user_answer(int index)
     return user_answers[index];
 }
 
-Task MathTest::get_task(int index)
-{
+const Task& MathTest::get_task(int index) const {
     if (index < 0 || index >= count) {
         throw out_of_range("Неверный номер вопроса");
     }
@@ -290,7 +226,6 @@ Task MathTest::get_task(int index)
     return tasks[index];
 }
 
-int MathTest::get_count()
-{
+int MathTest::get_count() const {
     return count;
 }
