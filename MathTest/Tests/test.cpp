@@ -26,7 +26,7 @@ TEST(TaskTest, DefaultConstructor) {
         EXPECT_EQ(task.answer, task.num_1 / task.num_2);
         break;
     default:
-        FAIL() << "Недопустимая операция";
+        FAIL() << "Unknown operation";
     }
 }
 
